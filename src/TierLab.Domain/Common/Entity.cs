@@ -1,18 +1,12 @@
 namespace TierLab.Domain.Common;
 
-/// <summary>
-/// Base class for all domain entities.
-/// Provides identity, audit fields, and equality semantics.
-/// </summary>
-public abstract class Entity
+public abstract class Entity<TKey> where TKey : notnull
 {
-    public Guid Id { get; protected set; } = Guid.NewGuid();
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
+    public TKey Id { get; set; } = default!;
 
     public override bool Equals(object? obj)
     {
-        if (obj is not Entity other)
+        if (obj is not Entity<TKey> other)
             return false;
 
         if (ReferenceEquals(this, other))
@@ -21,17 +15,17 @@ public abstract class Entity
         if (GetType() != other.GetType())
             return false;
 
-        return Id == other.Id;
+        return EqualityComparer<TKey>.Default.Equals(Id, other.Id);
     }
 
     public override int GetHashCode() => Id.GetHashCode();
 
-    public static bool operator ==(Entity? left, Entity? right)
+    public static bool operator ==(Entity<TKey>? left, Entity<TKey>? right)
     {
         if (left is null && right is null) return true;
         if (left is null || right is null) return false;
         return left.Equals(right);
     }
 
-    public static bool operator !=(Entity? left, Entity? right) => !(left == right);
+    public static bool operator !=(Entity<TKey>? left, Entity<TKey>? right) => !(left == right);
 }

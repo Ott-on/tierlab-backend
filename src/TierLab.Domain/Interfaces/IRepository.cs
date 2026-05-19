@@ -3,17 +3,15 @@ using TierLab.Domain.Common;
 
 namespace TierLab.Domain.Interfaces;
 
-/// <summary>
-/// Generic repository contract for domain entities.
-/// Defines the data access boundary used by the Application layer.
-/// </summary>
-public interface IRepository<T> where T : Entity
+public interface IRepository<T, TKey>
+    where T : Entity<TKey>
+    where TKey : notnull
 {
-    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<T>> FindAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken = default);
     Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
     Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
     Task DeleteAsync(T entity, CancellationToken cancellationToken = default);
-    Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<bool> ExistsAsync(TKey id, CancellationToken cancellationToken = default);
 }
