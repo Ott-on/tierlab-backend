@@ -26,3 +26,6 @@ Thumbs.db
 
 ## User secrets
 secrets.json
+*appsettings.Development.json
+*appsettings.json
+src/TierLab.Api/appsettings.Development.json
