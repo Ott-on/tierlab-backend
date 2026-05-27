@@ -29,6 +29,7 @@ public static class DependencyInjection
 
         // Repositories
         services.AddScoped<ITierlistReadRepository, TierlistReadRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         return services;
     }
