@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using TierLab.Application.UseCases.Tierlists;
+using TierLab.Application.UseCases.Usuarios;
 
 namespace TierLab.Application;
 
@@ -15,6 +16,9 @@ public static class DependencyInjection
 
         // Use Cases — Tierlists
         services.AddScoped<ITierlistQueries, TierlistQueries>();
+
+        // Use Cases — Usuários
+        services.AddScoped<IUsuarioService, UsuarioService>();
 
         return services;
     }

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using TierLab.Api.Middleware;
 using TierLab.Application;
@@ -38,6 +40,33 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
+
+var supabaseSection = builder.Configuration.GetSection("Supabase");
+var supabaseIssuer = supabaseSection.GetValue<string>("Issuer");
+var supabaseAudience = supabaseSection.GetValue<string>("Audience") ?? "authenticated";
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        if (!string.IsNullOrWhiteSpace(supabaseIssuer))
+        {
+            options.Authority = supabaseIssuer;
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = supabaseIssuer,
+                ValidateAudience = true,
+                ValidAudience = supabaseAudience,
+                NameClaimType = "sub",
+                RoleClaimType = "role"
+            };
+        }
+
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
