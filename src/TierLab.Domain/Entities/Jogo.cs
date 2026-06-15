@@ -4,11 +4,10 @@ namespace TierLab.Domain.Entities;
 
 public class Jogo : Entity<long>
 {
-    public string? ApiId { get; set; }
+    public string? Id { get; set; }
     public string Titulo { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
     public int? AnoLancamento { get; set; }
-    public string? Desenvolvedor { get; set; }
 
     // Navigation properties
     public ICollection<GeneroJogo> GeneroJogos { get; set; } = [];

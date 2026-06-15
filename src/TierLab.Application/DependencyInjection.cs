@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using TierLab.Application.UseCases.Jogos;
 using TierLab.Application.UseCases.Tierlists;
 using TierLab.Application.UseCases.Usuarios;
 
@@ -16,6 +17,10 @@ public static class DependencyInjection
 
         // Use Cases — Tierlists
         services.AddScoped<ITierlistQueries, TierlistQueries>();
+        services.AddScoped<ITierlistService, TierlistService>();
+
+        // Use Cases — Jogos
+        services.AddScoped<IJogoQueries, JogoQueries>();
 
         // Use Cases — Usuários
         services.AddScoped<IUsuarioService, UsuarioService>();
