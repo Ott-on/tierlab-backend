@@ -1,11 +1,11 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using TierLab.Application.UseCases.Jogos;
+using TierLab.Application.UseCases.Tierlists;
+using TierLab.Application.UseCases.Usuarios;
 
 namespace TierLab.Application;
 
-/// <summary>
-/// Registers all Application layer services into the DI container.
-/// </summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
@@ -14,6 +14,16 @@ public static class DependencyInjection
 
         // Register all FluentValidation validators
         services.AddValidatorsFromAssembly(assembly);
+
+        // Use Cases — Tierlists
+        services.AddScoped<ITierlistQueries, TierlistQueries>();
+        services.AddScoped<ITierlistService, TierlistService>();
+
+        // Use Cases — Jogos
+        services.AddScoped<IJogoQueries, JogoQueries>();
+
+        // Use Cases — Usuários
+        services.AddScoped<IUsuarioService, UsuarioService>();
 
         return services;
     }

@@ -2,9 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TierLab.Api.Controllers;
 
-/// <summary>
-/// Health check endpoint for monitoring and load balancers.
-/// </summary>
 public class HealthController : BaseController
 {
     [HttpGet]

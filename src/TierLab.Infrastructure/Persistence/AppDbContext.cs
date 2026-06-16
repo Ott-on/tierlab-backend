@@ -1,14 +1,27 @@
 using Microsoft.EntityFrameworkCore;
+using TierLab.Domain.Common;
+using TierLab.Domain.Entities;
 
 namespace TierLab.Infrastructure.Persistence;
 
-/// <summary>
-/// Application database context.
-/// All DbSets and entity configurations are registered here.
-/// </summary>
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+    // ── Core Entities ─────────────────────────────────────
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<Jogo> Jogos => Set<Jogo>();
+    public DbSet<Genero> Generos => Set<Genero>();
+    public DbSet<Plataforma> Plataformas => Set<Plataforma>();
+    public DbSet<Tierlist> Tierlists => Set<Tierlist>();
+    public DbSet<Comentario> Comentarios => Set<Comentario>();
+
+    // ── Junction / Relationship Tables ────────────────────
+    public DbSet<Curtida> Curtidas => Set<Curtida>();
+    public DbSet<GeneroJogo> GeneroJogos => Set<GeneroJogo>();
+    public DbSet<PlataformaJogo> PlataformaJogos => Set<PlataformaJogo>();
+    public DbSet<TierJogo> TierJogos => Set<TierJogo>();
+    public DbSet<UsuarioJogo> UsuarioJogos => Set<UsuarioJogo>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -24,28 +37,26 @@ public class AppDbContext : DbContext
         return base.SaveChangesAsync(cancellationToken);
     }
 
-    /// <summary>
-    /// Automatically sets CreatedAt/UpdatedAt on tracked entities.
-    /// </summary>
     private void ApplyAuditInfo()
     {
-        var entries = ChangeTracker.Entries<Domain.Common.Entity>();
+        // Auto-audit for IAuditable entities
+        var auditableEntries = ChangeTracker.Entries<IAuditable>();
 
-        foreach (var entry in entries)
+        foreach (var entry in auditableEntries)
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.CreatedAt = DateTime.UtcNow;
+                entry.Entity.CriadoEm = DateTime.UtcNow;
             }
 
             if (entry.State == EntityState.Modified)
             {
-                entry.Entity.UpdatedAt = DateTime.UtcNow;
+                entry.Entity.AtualizadoEm = DateTime.UtcNow;
             }
         }
 
         // Handle soft deletes
-        var softDeleteEntries = ChangeTracker.Entries<Domain.Common.ISoftDeletable>();
+        var softDeleteEntries = ChangeTracker.Entries<ISoftDeletable>();
 
         foreach (var entry in softDeleteEntries)
         {

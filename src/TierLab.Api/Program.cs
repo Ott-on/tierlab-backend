@@ -1,9 +1,26 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.OpenApi.Models;
 using Serilog;
+using TierLab.Api;
 using TierLab.Api.Middleware;
 using TierLab.Application;
 using TierLab.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddAuthentication("Test")
+        .AddScheme<AuthenticationSchemeOptions, TestAuthenticationHandler>("Test", _ => { });
+
+    builder.Services.AddAuthorization(options =>
+    {
+        options.FallbackPolicy = new AuthorizationPolicyBuilder("Test")
+            .RequireAuthenticatedUser()
+            .Build();
+    });
+}
 
 // ── Serilog ───────────────────────────────────────────────
 builder.Host.UseSerilog((context, loggerConfig) =>
@@ -24,6 +41,7 @@ builder.Services.AddSwaggerGen(options =>
         Version = "v1",
         Description = "TierLab Backend API"
     });
+
 });
 
 // ── CORS ──────────────────────────────────────────────────
@@ -48,12 +66,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseAuthentication();
+    app.UseAuthorization();
 }
 
 app.UseHttpsRedirection();
 app.UseCors("Default");
-app.UseAuthentication();
-app.UseAuthorization();
 app.MapControllers();
 
 // ── Serilog request logging ──────────────────────────────

@@ -1,14 +1,14 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TierLab.Application.UseCases.Jogos;
+using TierLab.Application.UseCases.Tierlists;
 using TierLab.Domain.Interfaces;
 using TierLab.Infrastructure.Persistence;
+using TierLab.Infrastructure.Repositories;
 
 namespace TierLab.Infrastructure;
 
-/// <summary>
-/// Registers all Infrastructure layer services into the DI container.
-/// </summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(
@@ -27,6 +27,12 @@ public static class DependencyInjection
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Repositories
+        services.AddScoped<ITierlistReadRepository, TierlistReadRepository>();
+        services.AddScoped<ITierlistRepository, TierlistRepository>();
+        services.AddScoped<IJogoReadRepository, JogoReadRepository>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         return services;
     }

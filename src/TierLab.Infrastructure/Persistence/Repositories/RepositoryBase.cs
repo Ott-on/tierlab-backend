@@ -5,11 +5,9 @@ using TierLab.Domain.Interfaces;
 
 namespace TierLab.Infrastructure.Persistence.Repositories;
 
-/// <summary>
-/// Generic repository implementation using EF Core.
-/// Provides default CRUD operations for any entity.
-/// </summary>
-public class RepositoryBase<T> : IRepository<T> where T : Entity
+public class RepositoryBase<T, TKey> : IRepository<T, TKey>
+    where T : Entity<TKey>
+    where TKey : notnull
 {
     protected readonly AppDbContext Context;
     protected readonly DbSet<T> DbSet;
@@ -20,7 +18,7 @@ public class RepositoryBase<T> : IRepository<T> where T : Entity
         DbSet = context.Set<T>();
     }
 
-    public virtual async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual async Task<T?> GetByIdAsync(TKey id, CancellationToken cancellationToken = default)
         => await DbSet.FindAsync([id], cancellationToken);
 
     public virtual async Task<IReadOnlyList<T>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -49,6 +47,6 @@ public class RepositoryBase<T> : IRepository<T> where T : Entity
         return Task.CompletedTask;
     }
 
-    public virtual async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
-        => await DbSet.AnyAsync(e => e.Id == id, cancellationToken);
+    public virtual async Task<bool> ExistsAsync(TKey id, CancellationToken cancellationToken = default)
+        => await DbSet.AnyAsync(e => EqualityComparer<TKey>.Default.Equals(e.Id, id), cancellationToken);
 }
