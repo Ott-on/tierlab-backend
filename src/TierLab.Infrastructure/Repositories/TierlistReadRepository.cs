@@ -43,4 +43,13 @@ public sealed class TierlistReadRepository : ITierlistReadRepository
             .Select(t => new TierlistSummary(t.Id, t.Titulo, t.ImageUrl))
             .ToListAsync(ct);
     }
+
+    public async Task<TierlistSummary?> GetByIdAsync(long id, CancellationToken ct = default)
+    {
+        return await _context.Tierlists
+            .AsNoTracking()
+            .Where(t => t.Id == id)
+            .Select(t => new TierlistSummary(t.Id, t.Titulo, t.ImageUrl))
+            .FirstOrDefaultAsync(ct);
+    }
 }

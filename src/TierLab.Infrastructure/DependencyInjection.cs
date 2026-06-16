@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TierLab.Application.UseCases.Jogos;
 using TierLab.Application.UseCases.Tierlists;
 using TierLab.Domain.Interfaces;
 using TierLab.Infrastructure.Persistence;
@@ -29,6 +30,8 @@ public static class DependencyInjection
 
         // Repositories
         services.AddScoped<ITierlistReadRepository, TierlistReadRepository>();
+        services.AddScoped<ITierlistRepository, TierlistRepository>();
+        services.AddScoped<IJogoReadRepository, JogoReadRepository>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 
         return services;
