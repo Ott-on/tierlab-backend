@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TierLab.Api.Extensions;
 using TierLab.Application.UseCases.Usuarios;
 using TierLab.Application.UseCases.Usuarios.Requests;
 
@@ -15,21 +14,24 @@ public sealed class UsersController : BaseController
         _usuarioService = usuarioService;
     }
 
-    [Authorize]
     [HttpGet("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetCurrent(CancellationToken ct = default)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetCurrent(
+        [FromQuery] Guid usuarioId,
+        [FromQuery] string? email,
+        [FromQuery] string? username,
+        [FromQuery] string? imageUrl,
+        CancellationToken ct = default)
     {
-        var userId = User.GetSupabaseUserId();
-        if (userId is null)
-            return Unauthorized();
+        if (usuarioId == Guid.Empty)
+            return BadRequest("UsuarioId é obrigatório.");
 
         var result = await _usuarioService.GetOrCreateCurrentAsync(
-            userId.Value,
-            User.GetSupabaseEmail(),
-            User.GetSupabaseUsername(),
-            User.GetSupabasePicture(),
+            usuarioId,
+            email,
+            username,
+            imageUrl,
             ct);
 
         if (!result.Success)
@@ -38,20 +40,18 @@ public sealed class UsersController : BaseController
         return Ok(result.Data);
     }
 
-    [Authorize]
     [HttpPatch("me")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> UpdateCurrent(
+        [FromQuery] Guid usuarioId,
         [FromBody] UpdateUsuarioRequest request,
         CancellationToken ct = default)
     {
-        var userId = User.GetSupabaseUserId();
-        if (userId is null)
-            return Unauthorized();
+        if (usuarioId == Guid.Empty)
+            return BadRequest("UsuarioId é obrigatório.");
 
-        var result = await _usuarioService.UpdateProfileAsync(userId.Value, request, ct);
+        var result = await _usuarioService.UpdateProfileAsync(usuarioId, request, ct);
         if (!result.Success)
             return BadRequest(result.Errors);
 
@@ -62,10 +62,11 @@ public sealed class UsersController : BaseController
     [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken ct = default)
+    public async Task<IActionResult> GetById(
+        Guid id,
+        [FromQuery] Guid? requesterId,
+        CancellationToken ct = default)
     {
-        var requesterId = User.GetSupabaseUserId();
-
         var result = await _usuarioService.GetByIdAsync(id, requesterId, ct);
         if (!result.Success)
             return NotFound(result.Errors);

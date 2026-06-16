@@ -31,4 +31,13 @@ public sealed class TierlistQueries : ITierlistQueries
         var items = await _repository.SearchByTituloAsync(query.Trim(), maxResults: 10, ct);
         return Result<IReadOnlyList<TierlistSummary>>.Ok(items);
     }
+
+    public async Task<Result<TierlistSummary>> GetByIdAsync(long id, CancellationToken ct = default)
+    {
+        var item = await _repository.GetByIdAsync(id, ct);
+        if (item is null)
+            return Result<TierlistSummary>.Fail("Tierlist não encontrada.");
+
+        return Result<TierlistSummary>.Ok(item);
+    }
 }

@@ -10,4 +10,6 @@ public interface ITierlistQueries
 
     Task<Result<IReadOnlyList<TierlistSummary>>> SearchAsync(
         string query, CancellationToken ct = default);
+
+    Task<Result<TierlistSummary>> GetByIdAsync(long id, CancellationToken ct = default);
 }
