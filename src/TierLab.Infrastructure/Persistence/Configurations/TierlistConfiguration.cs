@@ -23,5 +23,9 @@ public class TierlistConfiguration : IEntityTypeConfiguration<Tierlist>
             .WithMany(u => u.Tierlists)
             .HasForeignKey(t => t.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasIndex(t => new { t.Visibilidade, t.CriadoEm, t.Id })
+            .HasDatabaseName("ix_tierlists_visibilidade_criado_em_id")
+            .IsDescending(new[] { false, true, true });
     }
 }

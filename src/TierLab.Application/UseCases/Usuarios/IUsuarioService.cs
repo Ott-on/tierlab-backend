@@ -16,4 +16,10 @@ public interface IUsuarioService
     Task<Result<UsuarioProfileDto>> GetByIdAsync(Guid id, Guid? requesterId, CancellationToken ct = default);
 
     Task<Result<UsuarioProfileDto>> UpdateProfileAsync(Guid id, UpdateUsuarioRequest request, CancellationToken ct = default);
+
+    Task<Result> AddJogoAsync(Guid usuarioId, AddUsuarioJogoRequest request, CancellationToken ct = default);
+
+    Task<Result<IReadOnlyList<UsuarioJogoResponse>>> ListJogosAsync(Guid usuarioId, CancellationToken ct = default);
+    Task<Result> RemoveJogoAsync(Guid usuarioId, long jogoId, CancellationToken ct = default);
+    Task<Result> UpdateJogoAsync(Guid usuarioId, long jogoId, UpdateUsuarioJogoRequest request, CancellationToken ct = default);
 }

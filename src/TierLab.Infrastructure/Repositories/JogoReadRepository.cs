@@ -19,7 +19,7 @@ public sealed class JogoReadRepository : IJogoReadRepository
         return await _context.Jogos
             .AsNoTracking()
             .OrderBy(j => j.Titulo)
-            .Select(j => new JogoResponse(j.Id, j.Titulo, j.ImageUrl, j.AnoLancamento))
+            .Select(j => new JogoResponse(j.Id, j.Titulo, j.ImageUrl))
             .ToListAsync(ct);
     }
 
@@ -33,7 +33,7 @@ public sealed class JogoReadRepository : IJogoReadRepository
             .Where(j => EF.Functions.ILike(j.Titulo, $"%{query}%"))
             .OrderBy(j => j.Titulo)
             .Take(maxResults)
-            .Select(j => new JogoResponse(j.Id, j.Titulo, j.ImageUrl, j.AnoLancamento))
+            .Select(j => new JogoResponse(j.Id, j.Titulo, j.ImageUrl))
             .ToListAsync(ct);
     }
 }

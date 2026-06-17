@@ -4,7 +4,7 @@ namespace TierLab.Domain.Entities;
 
 public class Jogo : Entity<long>
 {
-    public string? Id { get; set; }
+    public int? ApiId { get; set; }
     public string Titulo { get; set; } = string.Empty;
     public string? ImageUrl { get; set; }
     public int? AnoLancamento { get; set; }
