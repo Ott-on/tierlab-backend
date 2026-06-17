@@ -3,6 +3,7 @@ using TierLab.Application.UseCases.Usuarios.Dtos;
 using TierLab.Application.UseCases.Usuarios.Requests;
 using TierLab.Domain.Entities;
 using TierLab.Domain.Interfaces;
+using TierLab.Application.UseCases.Usuarios.Dtos;
 
 namespace TierLab.Application.UseCases.Usuarios;
 
@@ -137,6 +138,109 @@ public sealed class UsuarioService : IUsuarioService
         }
 
         return Result<UsuarioProfileDto>.Ok(MapToDto(usuario));
+    }
+
+    public async Task<Result> AddJogoAsync(Guid usuarioId, AddUsuarioJogoRequest request, CancellationToken ct = default)
+    {
+        var usuario = await _usuarioRepository.GetByIdAsync(usuarioId, ct);
+        if (usuario is null)
+            return Result.Fail("Usuário não encontrado.");
+
+        if (request.JogoId <= 0)
+            return Result.Fail("JogoId inválido.");
+
+        if (!await _usuarioRepository.JogoExistsAsync(request.JogoId, ct))
+            return Result.Fail("Jogo não encontrado.");
+
+        if (await _usuarioRepository.UsuarioJogoExistsAsync(usuarioId, request.JogoId, ct))
+            return Result.Fail("Jogo já adicionado à coleção do usuário.");
+
+        var usuarioJogo = new UsuarioJogo
+        {
+            UsuarioId = usuarioId,
+            JogoId = request.JogoId,
+            Status = string.IsNullOrWhiteSpace(request.Status) ? null : request.Status.Trim(),
+            Nota = request.Nota,
+            HorasJogadas = request.HorasJogadas ?? 0,
+            Usuario = usuario
+        };
+
+        await _usuarioRepository.AddUsuarioJogoAsync(usuarioJogo, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        return Result.Ok();
+    }
+
+    public async Task<Result<IReadOnlyList<UsuarioJogoResponse>>> ListJogosAsync(Guid usuarioId, CancellationToken ct = default)
+    {
+        var usuario = await _usuarioRepository.GetByIdAsync(usuarioId, ct);
+        if (usuario is null)
+            return Result<IReadOnlyList<UsuarioJogoResponse>>.Fail("Usuário não encontrado.");
+
+        var items = await _usuarioRepository.GetUsuarioJogosAsync(usuarioId, ct);
+        var dtos = items.Select(uj => new UsuarioJogoResponse(
+            uj.JogoId,
+            uj.Status,
+            uj.Nota,
+            uj.HorasJogadas,
+            uj.AdicionadoEm)).ToList();
+
+        return Result<IReadOnlyList<UsuarioJogoResponse>>.Ok(dtos);
+    }
+
+    public async Task<Result> RemoveJogoAsync(Guid usuarioId, long jogoId, CancellationToken ct = default)
+    {
+        var usuario = await _usuarioRepository.GetByIdAsync(usuarioId, ct);
+        if (usuario is null)
+            return Result.Fail("Usuário não encontrado.");
+
+        var existing = await _usuarioRepository.GetUsuarioJogoAsync(usuarioId, jogoId, ct);
+        if (existing is null)
+            return Result.Fail("Jogo não está presente na coleção do usuário.");
+
+        await _usuarioRepository.RemoveUsuarioJogoAsync(existing, ct);
+        await _unitOfWork.SaveChangesAsync(ct);
+
+        return Result.Ok();
+    }
+
+    public async Task<Result> UpdateJogoAsync(Guid usuarioId, long jogoId, UpdateUsuarioJogoRequest request, CancellationToken ct = default)
+    {
+        var usuario = await _usuarioRepository.GetByIdAsync(usuarioId, ct);
+        if (usuario is null)
+            return Result.Fail("Usuário não encontrado.");
+
+        var existing = await _usuarioRepository.GetUsuarioJogoAsync(usuarioId, jogoId, ct);
+        if (existing is null)
+            return Result.Fail("Jogo não está presente na coleção do usuário.");
+
+        var modified = false;
+
+        if (request.Status is not null && !string.Equals(existing.Status, request.Status, StringComparison.Ordinal))
+        {
+            existing.Status = string.IsNullOrWhiteSpace(request.Status) ? null : request.Status.Trim();
+            modified = true;
+        }
+
+        if (request.Nota.HasValue && existing.Nota != request.Nota.Value)
+        {
+            existing.Nota = request.Nota;
+            modified = true;
+        }
+
+        if (request.HorasJogadas.HasValue && existing.HorasJogadas != request.HorasJogadas.Value)
+        {
+            existing.HorasJogadas = request.HorasJogadas.Value;
+            modified = true;
+        }
+
+        if (modified)
+        {
+            await _usuarioRepository.UpdateUsuarioJogoAsync(existing, ct);
+            await _unitOfWork.SaveChangesAsync(ct);
+        }
+
+        return Result.Ok();
     }
 
     private static string BuildUsername(string? username, string? email)
