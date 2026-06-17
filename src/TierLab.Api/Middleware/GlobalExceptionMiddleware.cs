@@ -57,7 +57,7 @@ public sealed class GlobalExceptionMiddleware
 
             _ => (
                 HttpStatusCode.InternalServerError,
-                new ErrorResponse("Internal Server Error", "An unexpected error occurred.")
+                new ErrorResponse("Internal Server Error", exception.ToString())
             )
         };
 

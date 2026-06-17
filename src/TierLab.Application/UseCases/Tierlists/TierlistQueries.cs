@@ -93,13 +93,13 @@ public sealed class TierlistQueries : ITierlistQueries
         return Result<IReadOnlyList<TierlistSummary>>.Ok(items);
     }
 
-    public async Task<Result<TierlistSummary>> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<Result<TierlistDetail>> GetByIdAsync(long id, CancellationToken ct = default)
     {
         var item = await _repository.GetByIdAsync(id, ct);
         if (item is null)
-            return Result<TierlistSummary>.Fail("Tierlist não encontrada.");
+            return Result<TierlistDetail>.Fail("Tierlist não encontrada.");
 
-        return Result<TierlistSummary>.Ok(item);
+        return Result<TierlistDetail>.Ok(item);
     }
 
     public async Task<Result<IReadOnlyList<JogoTierResponse>>> ListJogosByTierlistIdAsync(long tierlistId, CancellationToken ct = default)

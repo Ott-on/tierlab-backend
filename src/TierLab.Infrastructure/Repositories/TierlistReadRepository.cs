@@ -91,12 +91,12 @@ public sealed class TierlistReadRepository : ITierlistReadRepository
             .ToListAsync(ct);
     }
 
-    public async Task<TierlistSummary?> GetByIdAsync(long id, CancellationToken ct = default)
+    public async Task<TierlistDetail?> GetByIdAsync(long id, CancellationToken ct = default)
     {
         return await _context.Tierlists
             .AsNoTracking()
             .Where(t => t.Id == id)
-            .Select(t => new TierlistSummary(t.Id, t.Titulo, t.ImageUrl))
+            .Select(t => new TierlistDetail(t.Id, t.Titulo, t.ImageUrl, t.Descricao))
             .FirstOrDefaultAsync(ct);
     }
 

@@ -18,7 +18,7 @@ public interface ITierlistQueries
     Task<Result<IReadOnlyList<TierlistSummary>>> SearchAsync(
         string query, CancellationToken ct = default);
 
-    Task<Result<TierlistSummary>> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<Result<TierlistDetail>> GetByIdAsync(long id, CancellationToken ct = default);
 
     Task<Result<CursorPageResponse<TierLab.Application.UseCases.Jogos.Dtos.JogoTierResponse>>> ListJogosByCursorAsync(
         long tierlistId, int limit, string? cursor, CancellationToken ct = default);
