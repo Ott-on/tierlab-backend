@@ -17,7 +17,7 @@ public interface ITierlistReadRepository
     Task<IReadOnlyList<TierlistSummary>> SearchByTituloAsync(
         string query, int maxResults, CancellationToken ct = default);
 
-    Task<TierlistSummary?> GetByIdAsync(long id, CancellationToken ct = default);
+    Task<TierlistDetail?> GetByIdAsync(long id, CancellationToken ct = default);
 
     Task<IReadOnlyList<JogoTierResponse>> GetJogosByTierlistIdAsync(long tierlistId, CancellationToken ct = default);
 
